@@ -107,138 +107,189 @@ def tag(x, y, s):
 
 # ---------------------------------------------------------------- arts
 def art(kind, x, y, w, h):
-    """flat original mini-illustration inside box (x,y,w,h), clipped by caller bg"""
+    """detailed original mini-graphic inside box (x,y,w,h)"""
     cx, cy = x + w / 2, y + h / 2
-    if kind == "chart_down":
-        rect([x, y, x + w, y + h], fill=(16, 26, 48))
-        pts = [(x + 8, y + h * 0.28), (x + w * 0.3, y + h * 0.4), (x + w * 0.48, y + h * 0.34),
-               (x + w * 0.68, y + h * 0.62), (x + w * 0.9, y + h * 0.78)]
+    WHITE = (245, 245, 240)
+    if kind == "rally":
+        rect([x, y, x + w, y + h], fill=(13, 22, 44))
+        gx0, gx1, gy0, gy1 = x + 34, x + w - 46, y + 12, y + h - 20
+        for i, lab in enumerate(["+40%", "+20%", "0%", "-10%"]):
+            gy = gy0 + (gy1 - gy0) * i / 3
+            line([(gx0, gy), (gx1, gy)], fill=(52, 72, 110), width=1)
+            text(gx0 - 30, gy - 5, lab, F(SANS, 7.5), (150, 168, 200))
+        zero = gy0 + (gy1 - gy0) * 2 / 3
+        line([(gx0, zero), (gx1, zero)], fill=(120, 140, 180), width=1)
+        def px(t):
+            return gx0 + (gx1 - gx0) * t
+        def py(v):
+            return zero - v * (gy1 - gy0) / 150
+        pts = [(px(0), py(2)), (px(0.3), py(4)), (px(0.52), py(31.5)), (px(0.74), py(9)), (px(1), py(-4.4))]
         line(pts, fill=(255, 92, 82), width=3)
-        for i in range(5):
-            gx = x + 12 + i * (w - 24) / 4
-            line([(gx, y + 6), (gx, y + h - 6)], fill=(52, 72, 110), width=1)
-        d.polygon([(X(pts[-1][0]), X(pts[-1][1])), (X(pts[-1][0] - 12), X(pts[-1][1] - 3)),
-                   (X(pts[-1][0] - 3), X(pts[-1][1] + 10))], fill=(255, 92, 82))
-    elif kind == "chart_up":
-        rect([x, y, x + w, y + h], fill=(14, 44, 34))
-        pts = [(x + 8, y + h * 0.75), (x + w * 0.3, y + h * 0.6), (x + w * 0.5, y + h * 0.66),
-               (x + w * 0.72, y + h * 0.34), (x + w * 0.9, y + h * 0.2)]
-        line(pts, fill=(74, 222, 128), width=3)
-    elif kind == "chip":
-        rect([x, y, x + w, y + h], fill=(18, 30, 58))
-        rect([cx - 26, cy - 20, cx + 26, cy + 20], fill=(24, 148, 96), outline=(140, 230, 190), width=2)
-        for i in range(-2, 3):
-            line([(cx + i * 11, cy - 28), (cx + i * 11, cy - 20)], fill=(200, 210, 220), width=2)
-            line([(cx + i * 11, cy + 20), (cx + i * 11, cy + 28)], fill=(200, 210, 220), width=2)
-        rect([cx - 12, cy - 9, cx + 12, cy + 9], outline=(220, 255, 240), width=2)
-    elif kind == "tower":
-        rect([x, y, x + w, y + h], fill=(24, 30, 52))
-        rect([cx - 15, y + 10, cx + 15, y + h - 8], fill=(70, 84, 112))
-        for r in range(4):
-            for c in range(2):
-                rect([cx - 10 + c * 12, y + 16 + r * 13, cx - 3 + c * 12, y + 23 + r * 13], fill=(250, 204, 84))
-        d.polygon([(X(cx - 22), X(y + h - 6)), (X(cx + 26), X(y + 16)), (X(cx + 30), X(y + h - 6))],
-                  fill=(214, 84, 40))
-        d.ellipse([X(cx + 16), X(y + 8), X(cx + 34), X(y + 26)], fill=(120, 124, 132))
-    elif kind == "ship":
-        rect([x, y, x + w, y + h], fill=(26, 54, 92))
-        rect([x, y + h * 0.62, x + w, y + h], fill=(18, 84, 130))
-        d.polygon([(X(x + w * 0.2), X(y + h * 0.62)), (X(x + w * 0.82), X(y + h * 0.62)),
-                   (X(x + w * 0.72), X(y + h * 0.78)), (X(x + w * 0.3), X(y + h * 0.78))], fill=(40, 44, 54))
-        rect([x + w * 0.42, y + h * 0.38, x + w * 0.6, y + h * 0.62], fill=(88, 96, 110))
-        rect([x + w * 0.48, y + h * 0.24, x + w * 0.54, y + h * 0.38], fill=(60, 66, 78))
-    elif kind == "boat":
+        for t, v in [(0.52, 31.5), (1, -4.4)]:
+            d.ellipse([X(px(t) - 4), X(py(v) - 4), X(px(t) + 4), X(py(v) + 4)], fill=WHITE)
+        text(px(0.52) - 16, py(31.5) - 15, "+31.5% MON", F(SANS_B, 9), (255, 170, 120))
+        text(px(1) - 62, py(-4.4) + 6, "-4.4% TUE", F(SANS_B, 9), (255, 120, 110))
+        for t, lab in [(0.02, "FRI"), (0.5, "MON"), (0.94, "TUE")]:
+            text(px(t) - 8, gy1 + 5, lab, F(SANS, 7.5), (150, 168, 200))
+    elif kind == "deal":
+        rect([x, y, x + w, y + h], fill=(24, 44, 88))
+        bw, bh = w * 0.3, 30
+        rect([x + 12, y + 12, x + 12 + bw, y + 12 + bh], fill=(238, 240, 244))
+        text(x + 22, y + 20, "SANOFI", F(SERIF_B, 13), (20, 40, 80))
+        text(x + 22, y + 33, "Paris - buyer", F(SANS, 7.5), (90, 100, 120))
+        rect([x + w - 12 - bw, y + 12, x + w - 12, y + 12 + bh], fill=(250, 226, 170))
+        text(x + w - 12 - bw + 10, y + 20, "INSMED", F(SERIF_B, 13), (110, 70, 10))
+        text(x + w - 12 - bw + 10, y + 33, "US - target", F(SANS, 7.5), (130, 100, 40))
+        ax0, ax1, ay = x + 16 + bw, x + w - 16 - bw, y + 27
+        line([(ax0, ay), (ax1, ay)], fill=(250, 200, 90), width=4)
+        d.polygon([(X(ax1), X(ay - 6)), (X(ax1), X(ay + 6)), (X(ax1 + 10), X(ay))], fill=(250, 200, 90))
+        text((ax0 + ax1) / 2 - 34, ay - 17, "$41bn CASH", F(SANS_B, 10.5), (250, 210, 110))
+        steps = [("$119.9", "BEFORE", (140, 160, 200)), ("$170.39", "MON CLOSE", (230, 190, 110)),
+                 ("$175", "THE OFFER", (250, 120, 90))]
+        by = y + h - 30
+        text(x + 12, by + 2, "INSMED PRICE:", F(SANS_B, 8), (170, 190, 230))
+        for i, (lab, cap, col) in enumerate(steps):
+            bx = x + 96 + i * 74
+            rect([bx, by - 2, bx + 8, by + 14], fill=col)
+            text(bx + 11, by - 4, lab, F(SANS_B, 9), WHITE)
+            text(bx + 11, by + 7, cap, F(SANS, 6.5), (180, 195, 225))
+    elif kind == "deal_s":
+        rect([x, y, x + w, y + h], fill=(24, 44, 88))
+        bw = w * 0.3
+        rect([x + 8, y + 5, x + 8 + bw, y + 27], fill=(238, 240, 244))
+        text(x + 15, y + 11, "SANOFI", F(SERIF_B, 11), (20, 40, 80))
+        rect([x + w - 8 - bw, y + 5, x + w - 8, y + 27], fill=(250, 226, 170))
+        text(x + w - 8 - bw + 7, y + 11, "INSMED", F(SERIF_B, 11), (110, 70, 10))
+        ax0, ax1, ay = x + 14 + bw, x + w - 14 - bw, y + 16
+        line([(ax0, ay), (ax1, ay)], fill=(250, 200, 90), width=3)
+        d.polygon([(X(ax1), X(ay - 5)), (X(ax1), X(ay + 5)), (X(ax1 + 8), X(ay))], fill=(250, 200, 90))
+        text((ax0 + ax1) / 2 - 30, ay - 14, "$41bn CASH", F(SANS_B, 9.5), (250, 210, 110))
+        text(x + 8, y + h - 15, "INSMED PRICE:", F(SANS_B, 7.5), (170, 190, 230))
+        for i, (lab, col) in enumerate([("$119.9", (140, 160, 200)), ("$170.39", (230, 190, 110)), ("$175 OFFER", (250, 120, 90))]):
+            bx = x + 86 + i * 82
+            rect([bx, y + h - 16, bx + 7, y + h - 5], fill=col)
+            text(bx + 10, y + h - 14, lab, F(SANS_B, 8.5), WHITE)
+    elif kind == "strike":
+        rect([x, y, x + w, y + h], fill=(16, 18, 34))
+        for bx, bw2, bh in [(0.04, 0.13, 0.52), (0.2, 0.1, 0.38), (0.66, 0.12, 0.46), (0.82, 0.14, 0.58)]:
+            rect([x + w * bx, y + h * 0.78 - h * bh, x + w * (bx + bw2), y + h * 0.78], fill=(38, 44, 66))
+            for r in range(3):
+                rect([x + w * bx + 5, y + h * 0.78 - h * bh + 6 + r * 11, x + w * bx + 11, y + h * 0.78 - h * bh + 11 + r * 11], fill=(250, 204, 84))
+        ex, ey = x + w * 0.47, y + h * 0.34
+        for a in range(12):
+            import math as _m
+            dx, dy = _m.cos(a * 0.524), _m.sin(a * 0.524)
+            line([(ex, ey), (ex + dx * 17, ey + dy * 17)], fill=(255, 150, 60), width=2)
+        d.ellipse([X(ex - 8), X(ey - 8), X(ex + 8), X(ey + 8)], fill=(255, 190, 80))
+        for dxx in (0.3, 0.58):
+            dxp, dyp = x + w * dxx, y + h * 0.16
+            d.polygon([(X(dxp - 9), X(dyp)), (X(dxp + 9), X(dyp)), (X(dxp + 3), X(dyp + 5)), (X(dxp - 3), X(dyp + 5))], fill=(200, 205, 215))
+            line([(dxp - 13, dyp + 2), (dxp - 4, dyp + 2)], fill=(200, 205, 215), width=2)
+            line([(dxp + 4, dyp + 2), (dxp + 13, dyp + 2)], fill=(200, 205, 215), width=2)
+        rect([x, y + h - 17, x + w, y + h], fill=(150, 30, 26))
+        text(x + 10, y + h - 13.5, "2 DEAD - 40+ WOUNDED - 96 DRONES LAUNCHED", F(SANS_B, 9), (255, 240, 230))
+    elif kind == "mic2":
+        rect([x, y, x + w, y + h], fill=(54, 40, 84))
+        d.ellipse([X(cx - 26), X(cy - 13), X(cx - 8), X(cy + 13)], fill=(214, 218, 226), outline=INK, width=1)
+        for i in range(3):
+            line([(cx - 26, cy - 7 + i * 7), (cx - 8, cy - 7 + i * 7)], fill=(120, 126, 140), width=1)
+        line([(cx - 17, cy + 13), (cx - 17, cy + 19)], fill=(220, 220, 226), width=3)
+        line([(cx - 27, cy + 20), (cx - 7, cy + 20)], fill=(220, 220, 226), width=3)
+        for r in (10, 17, 24):
+            d.arc([X(cx - 2), X(cy - r), X(cx - 2 + 2 * r * 0.62), X(cy + r)], start=-55, end=55, fill=(250, 200, 90), width=2)
+        text(cx + 26, cy - 7, "PRESS", F(SANS_B, 10), (240, 230, 255))
+        text(cx + 26, cy + 5, "BRIEFING", F(SANS, 7.5), (190, 180, 220))
+    elif kind == "gaza":
+        rect([x, y, x + w, y + h], fill=(40, 36, 44))
+        rect([x, y + h - 8, x + w, y + h], fill=(24, 22, 28))
+        for bx, bw2, bh in [(0.06, 0.16, 0.5), (0.3, 0.13, 0.66), (0.52, 0.17, 0.44), (0.76, 0.15, 0.58)]:
+            rect([x + w * bx, y + h - 8 - h * bh, x + w * (bx + bw2), y + h - 8], fill=(66, 60, 66))
+        for sx in (0.36, 0.58, 0.82):
+            for r in range(3):
+                d.ellipse([X(x + w * sx - 5 - r * 2), X(y + 3 + r * 6), X(x + w * sx + 5 + r * 2), X(y + 11 + r * 6)], fill=(110, 104, 104))
+        line([(x + w * 0.12, y + 4), (x + w * 0.34, y + h * 0.4)], fill=(255, 150, 70), width=2)
+        line([(x + w * 0.2, y + 2), (x + w * 0.56, y + h * 0.34)], fill=(255, 120, 60), width=2)
+        chip(x + w - 52, y + h - 22, "7 DEAD", RED, font=F(SANS_B, 8.5))
+    elif kind == "boat2":
         rect([x, y, x + w, y + h], fill=(30, 74, 116))
         for i in range(3):
-            line([(x + 6, y + h * (0.66 + i * 0.1)), (x + w - 6, y + h * (0.66 + i * 0.1))],
-                 fill=(120, 180, 220), width=2)
-        d.polygon([(X(x + w * 0.22), X(y + h * 0.6)), (X(x + w * 0.8), X(y + h * 0.6)),
-                   (X(x + w * 0.68), X(y + h * 0.74)), (X(x + w * 0.34), X(y + h * 0.74))], fill=(240, 236, 224))
-        rect([x + w * 0.4, y + h * 0.36, x + w * 0.62, y + h * 0.6], fill=(196, 60, 44))
+            line([(x + 6, y + h * (0.68 + i * 0.1)), (x + w * 0.58, y + h * (0.68 + i * 0.1))], fill=(120, 180, 220), width=2)
+        d.polygon([(X(x + w * 0.08), X(y + h * 0.6)), (X(x + w * 0.52), X(y + h * 0.6)),
+                   (X(x + w * 0.44), X(y + h * 0.74)), (X(x + w * 0.16), X(y + h * 0.74))], fill=(240, 236, 224))
+        rect([x + w * 0.2, y + h * 0.36, x + w * 0.38, y + h * 0.6], fill=(196, 60, 44))
+        for t in range(5):
+            d.ellipse([X(x + w * (0.56 + t * 0.055)), X(y + h * (0.3 - t * 0.028)), X(x + w * (0.56 + t * 0.055) + 3), X(y + h * (0.3 - t * 0.028) + 3)], fill=(255, 210, 120))
+        text(x + w * 0.63, y + 5, "175", F(SERIF_B, 19), (255, 220, 150))
+        text(x + w * 0.63, y + 27, "MISSING", F(SANS_B, 8), (200, 225, 250))
+    elif kind == "conf" and h < 52:
+        rect([x, y, x + w, y + h], fill=(14, 44, 34))
+        pts = [(x + 8, y + h - 8), (x + w * 0.45, y + h - 12), (x + w - 52, y + 6)]
+        line(pts, fill=(74, 222, 128), width=3)
+        for px_, py_ in (pts[0], pts[-1]):
+            d.ellipse([X(px_ - 3), X(py_ - 3), X(px_ + 3), X(py_ + 3)], fill=WHITE)
+        text(pts[0][0], pts[0][1] - 13, "91.9", F(SANS_B, 8), (190, 250, 210))
+        text(pts[-1][0] + 6, pts[-1][1] - 2, "103.3", F(SANS_B, 10), (160, 255, 190))
+    elif kind == "conf":
+        rect([x, y, x + w, y + h], fill=(14, 44, 34))
+        gx0, gx1, gy0, gy1 = x + 8, x + w - 8, y + 7, y + h - 13
+        for i in range(3):
+            gy = gy0 + (gy1 - gy0) * i / 2
+            line([(gx0, gy), (gx1, gy)], fill=(36, 84, 62), width=1)
+        fy = gy0 + (gy1 - gy0) * 0.62
+        for sx in range(int(gx0), int(gx1), 7):
+            line([(sx, fy), (sx + 4, fy)], fill=(250, 200, 90), width=1)
+        text(gx0 + 2, fy - 10, "FORECAST 92.5", F(SANS, 6.5), (250, 200, 90))
+        pts = [(gx0 + 4, gy0 + (gy1 - gy0) * 0.78), (x + w * 0.42, gy0 + (gy1 - gy0) * 0.72), (gx1 - 26, gy0 + 3)]
+        line(pts, fill=(74, 222, 128), width=3)
+        for px_, py_ in (pts[0], pts[-1]):
+            d.ellipse([X(px_ - 3), X(py_ - 3), X(px_ + 3), X(py_ + 3)], fill=WHITE)
+        text(pts[0][0] - 2, pts[0][1] - 12, "91.9", F(SANS_B, 8.5), (190, 250, 210))
+        text(pts[-1][0] - 36, pts[-1][1] + 2, "103.3", F(SANS_B, 9.5), (160, 255, 190))
+    elif kind == "tariff":
+        rect([x, y, x + w, y + h], fill=(44, 48, 66))
+        for r in range(4):
+            for c in range(4):
+                rect([x + 12 + c * 13, y + 7 + r * 9, x + 21 + c * 13, y + 14 + r * 9], fill=(240, 170, 60) if (r * 4 + c) % 3 else (150, 160, 185))
+        d.ellipse([X(cx + 8), X(cy - 14), X(cx + 30), X(cy + 8)], outline=(255, 240, 210), width=3)
+        line([(cx + 26, cy + 5), (cx + 40, cy + 19)], fill=(255, 240, 210), width=4)
+        text(cx + 44, cy - 8, "x16", F(SERIF_B, 15), (255, 220, 150))
+        text(cx + 44, cy + 8, "PARTNERS", F(SANS_B, 7), (210, 215, 230))
+    elif kind == "debt":
+        rect([x, y, x + w, y + h], fill=(238, 232, 216))
+        text(x + 8, y + 4, "DEBT $237.5bn", F(SANS_B, 8), (170, 40, 34))
+        rect([x + 8, y + 15, x + w - 66, y + 21], fill=(188, 44, 38))
+        text(x + w - 56, y + 3, "242%", F(SERIF_B, 13), (170, 40, 34))
+        text(x + w - 56, y + 17, "OF GDP", F(SANS_B, 6.5), (120, 90, 80))
+        text(x + 8, y + 24, "GDP ~$98bn", F(SANS_B, 8), (30, 110, 100))
+        rect([x + 8, y + 35, x + 8 + (w - 74) * 0.413, y + 41], fill=(20, 130, 118))
+    elif kind == "cricket2":
+        rect([x, y, x + w, y + h], fill=(30, 116, 66))
+        rect([x + 12, y + 8, x + 28, y + h - 8], fill=(216, 192, 138))
+        for i in range(3):
+            line([(x + 15 + i * 5, y + 11), (x + 15 + i * 5, y + 21)], fill=(250, 240, 210), width=2)
+        d.ellipse([X(x + 36), X(y + h - 14), X(x + 45), X(y + h - 5)], fill=(198, 30, 40))
+        text(x + 54, y + 12, "188-2", F(SERIF_B, 14), (255, 255, 245))
+        text(x + 54, y + 30, "DONALD 85 OFF 32 - CHASED 185 IN 13.1 OV", F(SANS_B, 6.5), (210, 245, 220))
+    elif kind == "mine2":
+        rect([x, y, x + w, y + h], fill=(84, 62, 40))
+        for i, bh in enumerate((0.3, 0.48, 0.66, 0.86)):
+            rect([x + 12 + i * 17, y + h - 8 - h * bh, x + 25 + i * 17, y + h - 8], fill=(240, 190, 80))
+        text(cx + 12, y + 8, "$965M", F(SERIF_B, 15), (255, 230, 160))
+        text(cx + 12, y + 25, "NEW FINANCING", F(SANS_B, 7), (240, 215, 170))
+    elif kind == "oil2":
+        rect([x, y, x + w, y + h], fill=(44, 40, 36))
+        d.polygon([(X(x + 14), X(y + h - 8)), (X(x + 34), X(y + 10)), (X(x + 54), X(y + h - 8))], outline=(220, 200, 160), width=3)
+        line([(x + 34, y + 10), (x + 62, y + 22)], fill=(220, 200, 160), width=3)
+        rect([x + 56, y + 18, x + 70, y + 27], fill=(220, 200, 160))
+        text(x + 82, y + 7, "BRENT $88.62", F(SANS_B, 9.5), (250, 230, 190))
+        text(x + 82, y + 20, "DOWN 0.8%", F(SANS_B, 8), (255, 150, 120))
+        text(x + 82, y + 32, "3-MONTH LOW", F(SANS, 7), (200, 190, 170))
     elif kind == "gavel":
         rect([x, y, x + w, y + h], fill=(238, 230, 210))
         rect([x + 8, y + h - 12, x + w - 8, y + h - 7], fill=(150, 128, 92))
         line([(cx - 20, cy + 10), (cx + 10, cy - 14)], fill=(120, 82, 40), width=6)
         rect([cx + 2, cy - 22, cx + 22, cy - 9], fill=(160, 108, 52))
         rect([cx - 30, cy + 16, cx + 2, cy + 21], fill=(120, 82, 40))
-    elif kind == "ballot":
-        rect([x, y, x + w, y + h], fill=(232, 226, 208))
-        rect([cx - 26, cy - 18, cx + 26, cy + 20], fill=(255, 255, 252), outline=INK, width=1)
-        line([(cx - 16, cy - 6), (cx - 4, cy + 6)], fill=GREEN, width=4)
-        line([(cx - 4, cy + 6), (cx + 18, cy - 12)], fill=GREEN, width=4)
-        rect([cx - 30, cy + 22, cx + 30, cy + 27], fill=INK)
-    elif kind == "factory":
-        rect([x, y, x + w, y + h], fill=(70, 66, 74))
-        rect([x + 10, y + h * 0.45, x + w - 10, y + h - 6], fill=(104, 98, 104))
-        rect([x + 18, y + h * 0.18, x + 30, y + h * 0.45], fill=(88, 82, 88))
-        d.ellipse([X(x + 8), X(y + 2), X(x + 34), X(y + h * 0.24)], fill=(140, 138, 140))
-        d.polygon([(X(cx + 6), X(y + h * 0.5)), (X(cx + 18), X(y + h * 0.2)), (X(cx + 26), X(y + h * 0.5))], fill=(240, 130, 30))
-        d.polygon([(X(cx + 22), X(y + h * 0.52)), (X(cx + 30), X(y + h * 0.3)), (X(cx + 36), X(y + h * 0.52))], fill=(250, 178, 44))
-    elif kind == "plane":
-        rect([x, y, x + w, y + h], fill=(38, 84, 140))
-        d.ellipse([X(x + w * 0.14), X(y + h * 0.52), X(x + w * 0.86), X(y + h * 0.72)], fill=(238, 240, 244))
-        d.polygon([(X(x + w * 0.44), X(y + h * 0.56)), (X(x + w * 0.62), X(y + h * 0.24)),
-                   (X(x + w * 0.7), X(y + h * 0.24)), (X(x + w * 0.6), X(y + h * 0.58))], fill=(210, 214, 222))
-        d.polygon([(X(x + w * 0.78), X(y + h * 0.5)), (X(x + w * 0.9), X(y + h * 0.3)),
-                   (X(x + w * 0.92), X(y + h * 0.52))], fill=RED)
-        for i in range(5):
-            d.ellipse([X(x + w * (0.3 + i * 0.09)), X(y + h * 0.585), X(x + w * (0.345 + i * 0.09)), X(y + h * 0.635)], fill=(70, 110, 170))
-    elif kind == "ball":
-        rect([x, y, x + w, y + h], fill=(24, 120, 62))
-        line([(x, cy), (x + w, cy)], fill=(230, 240, 230), width=1)
-        d.ellipse([X(cx - 17), X(cy - 17), X(cx + 17), X(cy + 17)], fill=(250, 250, 248), outline=INK, width=1)
-        d.polygon([(X(cx - 6), X(cy - 8)), (X(cx + 6), X(cy - 8)), (X(cx + 9), X(cy + 2)),
-                   (X(cx), X(cy + 9)), (X(cx - 9), X(cy + 2))], fill=INK)
-    elif kind == "cricket":
-        rect([x, y, x + w, y + h], fill=(30, 116, 66))
-        rect([cx - 9, y + 10, cx + 9, y + h - 10], fill=(216, 192, 138))
-        for i in range(3):
-            line([(cx - 6 + i * 6, y + 14), (cx - 6 + i * 6, y + 26)], fill=(250, 240, 210), width=2)
-        d.ellipse([X(cx + 16), X(cy + 8), X(cx + 26), X(cy + 18)], fill=(198, 30, 40))
-    elif kind == "smog":
-        rect([x, y, x + w, y + h], fill=(172, 158, 128))
-        rect([x + 10, y + h * 0.4, x + 34, y + h - 6], fill=(120, 108, 88))
-        rect([x + w - 38, y + h * 0.3, x + w - 12, y + h - 6], fill=(110, 98, 80))
-        rect([cx - 14, y + h * 0.48, cx + 14, y + h - 6], fill=(128, 114, 90))
-        d.ellipse([X(x + w * 0.62), X(y + 6), X(x + w * 0.82), X(y + h * 0.3)], fill=(226, 208, 168))
-    elif kind == "oil":
-        rect([x, y, x + w, y + h], fill=(44, 40, 36))
-        d.polygon([(X(x + 16), X(y + h - 8)), (X(cx), X(y + 12)), (X(x + w - 16), X(y + h - 8))], outline=(220, 200, 160), width=3)
-        line([(cx, y + 12), (x + w - 22, y + 26)], fill=(220, 200, 160), width=3)
-        rect([x + w - 34, y + 22, x + w - 12, y + 32], fill=(220, 200, 160))
-        rect([x + 8, y + h - 12, x + w - 8, y + h - 8], fill=(150, 130, 90))
-    elif kind == "mine":
-        rect([x, y, x + w, y + h], fill=(84, 62, 40))
-        d.polygon([(X(x + 8), X(y + h - 8)), (X(x + w * 0.4), X(y + 14)), (X(x + w * 0.62), X(y + h - 8))], fill=(120, 92, 54))
-        d.polygon([(X(x + w * 0.42), X(y + h - 8)), (X(x + w * 0.68), X(y + 22)), (X(x + w - 8), X(y + h - 8))], fill=(104, 78, 44))
-        d.ellipse([X(cx - 6), X(cy - 4), X(cx + 8), X(cy + 10)], fill=(90, 200, 230))
-        d.ellipse([X(cx + 16), X(cy + 8), X(cx + 27), X(cy + 19)], fill=(250, 200, 70))
-    elif kind == "globe":
-        rect([x, y, x + w, y + h], fill=(20, 48, 92))
-        d.ellipse([X(cx - 26), X(cy - 26), X(cx + 26), X(cy + 26)], fill=(90, 170, 220), outline=(220, 240, 255), width=2)
-        d.ellipse([X(cx - 20), X(cy - 18), X(cx - 2), X(cy - 2)], fill=(80, 170, 100))
-        d.ellipse([X(cx + 2), X(cy + 4), X(cx + 20), X(cy + 20)], fill=(80, 170, 100))
-        d.ellipse([X(cx - 16), X(cy + 8), X(cx - 4), X(cy + 18)], fill=(80, 170, 100))
-    elif kind == "handshake":
-        rect([x, y, x + w, y + h], fill=(36, 62, 110))
-        rect([x + 8, cy - 16, cx - 2, cy + 14], fill=(52, 88, 150))
-        rect([cx + 2, cy - 16, x + w - 8, cy + 14], fill=(150, 52, 60))
-        d.ellipse([X(cx - 13), X(cy - 9), X(cx + 13), X(cy + 15)], fill=(232, 186, 140))
-        line([(cx - 22, cy + 16), (cx + 22, cy + 16)], fill=(240, 220, 160), width=3)
-    elif kind == "microphone":
-        rect([x, y, x + w, y + h], fill=(54, 40, 84))
-        d.ellipse([X(cx - 9), X(y + 7), X(cx + 9), X(y + h * 0.52)], fill=(214, 218, 226), outline=INK, width=1)
-        for i in range(3):
-            line([(cx - 9, y + 12 + i * 6), (cx + 9, y + 12 + i * 6)], fill=(120, 126, 140), width=1)
-        line([(cx, y + h * 0.52), (cx, y + h - 11)], fill=(220, 220, 226), width=3)
-        line([(cx - 13, y + h - 9), (cx + 13, y + h - 9)], fill=(220, 220, 226), width=3)
-    elif kind == "satellite":
-        rect([x, y, x + w, y + h], fill=(10, 14, 34))
-        for sx, sy in [(0.15, 0.2), (0.8, 0.16), (0.66, 0.7), (0.24, 0.78)]:
-            d.ellipse([X(x + w * sx), X(y + h * sy), X(x + w * sx + 3), X(y + h * sy + 3)], fill=(255, 255, 240))
-        rect([cx - 9, cy - 9, cx + 9, cy + 9], fill=(190, 196, 206))
-        rect([cx - 34, cy - 6, cx - 12, cy + 6], fill=(52, 92, 190))
-        rect([cx + 12, cy - 6, cx + 34, cy + 6], fill=(52, 92, 190))
     else:  # generic skyline
         rect([x, y, x + w, y + h], fill=(52, 66, 96))
         rect([x + 10, y + h * 0.36, x + 30, y + h - 6], fill=(30, 38, 58))
@@ -257,122 +308,184 @@ def num_badge(x, y, n, fill=RED, r=9):
     text(x + r, y + r + 0.5, s, f, (255, 255, 255), anchor="mm")
 
 
-# ---------------------------------------------------------------- header
-rect([0, 0, 1024, 24], fill=INK)
-text(14, 5, "THE WORLD IN ONE DAY  •  ONE PAGE", F(SANS_B, 11), (255, 255, 255))
-hdr_r = f"{S.TOTAL} STORIES  •  {S.REGIONS} REGIONS  •  ALL FROM {S.DATE_LONG.upper()}"
-text(1010, 5, hdr_r, F(SANS_B, 11), (255, 255, 255), anchor="ra")
+# ---------------------------------------------------------------- winners' layout v4
+import glob as _glob
+WHITE = (255, 255, 255)
+from PIL import Image as _Img, ImageEnhance as _Enh
 
-text(512, 30, S.DATE_LONG, F(SERIF_B, 57), INK, anchor="ma")
-sub = S.SUBLINE
-text(512, 94, sub, F(SERIF_I, 15.5), RED, anchor="ma")
-line([(14, 116), (1010, 116)], fill=INK, width=2.5)
+def illus(name, x, y, w, h):
+    files = sorted(_glob.glob(f"assets/{name}.*"))
+    if not files:
+        rect([x, y, x + w, y + h], fill=(210, 200, 175))
+        return
+    im = _Img.open(files[0]).convert("RGB")
+    im = _Enh.Contrast(im).enhance(1.3)
+    im = _Enh.Color(im).enhance(1.2)
+    im = _Enh.Sharpness(im).enhance(1.3)
+    tw, th = w * SS, h * SS
+    scale = max(tw / im.width, th / im.height)
+    im = im.resize((int(im.width * scale) + 1, int(im.height * scale) + 1), _Img.LANCZOS)
+    ox = (im.width - int(tw)) // 2
+    oy = (im.height - int(th)) // 2
+    im = im.crop((ox, oy, ox + int(tw), oy + int(th)))
+    img.paste(im, (int(X(x)), int(X(y))))
+    rect([x, y, x + w, y + h], outline=(90, 84, 70), width=1)
 
-# data strip
-dx, dw = 14, (1024 - 28 - 5 * 6) / 6
+def rule(y, x0=14, x1=1010, wdt=1, col=(60, 56, 50)):
+    line([(x0, y), (x1, y)], fill=col, width=wdt)
+
+def banner(x, y, txt, fill=RED, size=13):
+    f = F(SANS_B, size)
+    tw = tlen(txt, f)
+    rect([x, y, x + tw + 14, y + size + 9], fill=fill)
+    text(x + 7, y + 3.5, txt, f, WHITE)
+
+def chip_r(x1, y, txt, fill=(10, 10, 12), size=10.5):
+    f = F(SANS_B, size)
+    tw = tlen(txt, f)
+    rect([x1 - tw - 12, y, x1, y + size + 7], fill=fill)
+    text(x1 - tw - 6, y + 2.5, txt, f, WHITE)
+
+CERT_COL = {"CONFIRMED": (26, 118, 56), "REPORTED": (28, 66, 138), "OFFICIAL": (158, 106, 8), "CLAIM": (186, 28, 28)}
+def cert_tag(x1, y, cert, size=7.5):
+    f = F(SANS_B, size)
+    tw = tlen(cert, f)
+    col = CERT_COL[cert]
+    rect([x1 - tw - 8, y, x1, y + size + 5], outline=col, width=1)
+    text(x1 - tw - 4, y + 1.5, cert, f, col)
+
+def loc_line(x, y, wdt, n, loc, cert):
+    num_badge(x, y, n, RED, r=8)
+    text(x + 21, y + 1, loc, F(SANS_B, 8.5), NAVY)
+    cert_tag(x + wdt, y, cert)
+
+# ---- top line + giant date (winners' masthead)
+text(14, 7, "THE WORLD IN ONE DAY  •  ONE PAGE", F(SANS_B, 10.5), RED)
+text(1010, 7, "36 STORIES  •  7 REGIONS  •  ALL FROM TUESDAY 24 NOVEMBER 2026", F(SANS_B, 10.5), (70, 66, 60), anchor="ra")
+text(512, 26, "Tuesday 24 November 2026", F(SERIF_B, 55), INK, anchor="ma")
+rule(90, wdt=3); rule(95, wdt=1)
+text(512, 102, "Sanofi's $41bn Insmed deal  •  Kremlin shuts Europe out of Ukraine talks  •  Chip rally unwinds", F(SERIF_I, 13.5), RED, anchor="ma")
+# ---- numbers band
+NY = 124
+rule(NY - 4, wdt=1)
 for i, (big, small, col) in enumerate(S.DATA):
-    x = dx + i * (dw + 6)
-    rect([x, 121, x + 3, 163], fill=col)
-    text(x + 9, 122, big, F(SERIF_B, 24), col)
-    para(x + 9, 149, small, F(SANS, 8.6), dw - 12, GREY, leading=1, max_lines=2)
-line([(14, 168), (1010, 168)], fill=INK, width=1)
-
-# region bar
+    x = 14 + i * 168
+    if i:
+        line([(x - 10, NY), (x - 10, NY + 34)], fill=(170, 162, 146), width=1)
+    text(x, NY, big, F(SERIF_B, 21), col)
+    para(x, NY + 26, small, F(SANS, 8), 158, GREY, leading=1.1, max_lines=1)
+rule(NY + 40, wdt=1)
+# ---- region colour bar
+RY = NY + 46
+regions = [("EUROPE", 10, (32, 64, 128)), ("MIDDLE EAST", 6, (178, 34, 34)), ("ASIA", 5, (216, 110, 30)),
+           ("AMERICAS", 8, (110, 60, 160)), ("AFRICA", 4, (40, 130, 70)), ("OCEANIA", 1, (20, 140, 150)), ("WORLD", 2, (90, 90, 96))]
+total = sum(c for _, c, _ in regions)
+widths = [max(64, 996 * c / total) for _, c, _ in regions]
+scale = 996 / sum(widths)
+widths = [wd * scale for wd in widths]
 rx = 14
-tot = sum(n for _, n, _ in S.REGION_BAR)
-for name, n, col in S.REGION_BAR:
-    wseg = (1024 - 28) * n / tot
-    rect([rx, 172, rx + wseg, 188], fill=col)
-    lab = f"{name} {n}"
-    if wseg > 52:
-        text(rx + wseg / 2, 175.5, lab, F(SANS_B, 9.5), (255, 255, 255), anchor="ma")
-    rx += wseg
+for (nm, c, col), wd in zip(regions, widths):
+    rect([rx, RY, rx + wd - 2, RY + 16], fill=col)
+    text(rx + wd / 2 - 1, RY + 3, f"{nm} {c}", F(SANS_B, 8.5), WHITE, anchor="ma")
+    rx += wd
+# ---- black timeline bar
+TY = RY + 20
+rect([14, TY, 1010, TY + 17], fill=(12, 12, 14))
+tx = 20
+text(tx, TY + 3.5, "UTC", F(SANS_B, 9), (255, 120, 100))
+tx += 34
+for t, s in S.TIMELINE:
+    text(tx, TY + 3.5, t, F(SANS_B, 9), (250, 200, 90))
+    tx += tlen(t, F(SANS_B, 9)) + 4
+    text(tx, TY + 3.5, s.upper(), F(SANS, 9), WHITE)
+    tx += tlen(s.upper(), F(SANS, 9)) + 14
 
-# timeline
-rect([14, 191, 1010, 209], fill=NAVY)
-tt = "   •   ".join(f"{t} {ev}" for t, ev in S.TIMELINE)
-text(512, 194.5, tt, F(SANS_B, 9.5), (255, 255, 255), anchor="ma")
+# ---- leads
+LZ = TY + 27
+L1, L2, L3 = S.LEADS
+LEAD_ART = [("art", "rally", "CHIP RALLY UNWINDS", "NASDAQ FUT -1.11%"),
+            ("art", "deal", None, "$175 A SHARE"),
+            ("illus", "strike", "DAWN STRIKE", "96 DRONES LAUNCHED")]
+LW3 = (1024 - 28 - 2 * 11) / 3
+for i, st in enumerate([L1, L2, L3]):
+    x = 14 + i * (LW3 + 11)
+    kind, key, ban, chip = LEAD_ART[i]
+    if kind == "art":
+        art(key, x, LZ, LW3, 100)
+    else:
+        illus(key, x, LZ, LW3, 100)
+    if ban:
+        banner(x, LZ, ban, RED, 12.5)
+    chip_r(x + LW3, LZ + 79, chip)
+    loc_line(x, LZ + 106, LW3, st["n"], st["loc"], st["cert"])
+    yy = para(x, LZ + 124, st["head"], F(SERIF_B, 20), LW3, INK, leading=1.1, max_lines=3)
+    para(x, yy + 3, st["body"], F(SANS, 9.5), LW3, (52, 50, 46), leading=1.2, max_lines=3)
+rule(LZ + 232, wdt=2)
 
-# ---------------------------------------------------------------- lead row
-LY = 214
-LW = (1024 - 28 - 2 * 10) / 3
-for i, st in enumerate(S.LEADS):
-    x = 14 + i * (LW + 10)
-    art(st["art"], x, LY, LW, 86)
-    chip(x + 7, LY + 7, st["kicker"], RED if i != 1 else NAVY)
-    tag(x + LW - 7, LY + 93, st.get("cert", "REPORTED"))
-    num_badge(x, LY + 93, st["n"], NAVY if i == 1 else RED)
-    text(x + 24, LY + 91, st["loc"], F(SANS_B, 10.5), RED)
-    y = para(x, LY + 110, st["head"], F(SERIF_B, 18.5), LW, leading=2, max_lines=2)
-    para(x, y + 1, st["body"], F(SANS, 10.8), LW, (52, 50, 46), leading=2, max_lines=2)
-line([(14, 392), (1010, 392)], fill=INK, width=2)
+# ---- mids: 2 rows x 5 cards
+MZ = LZ + 242
+MW2 = (1024 - 28 - 4 * 12) / 5
+MH2 = 152
+ILLUS_KINDS = {"mic2": "talks", "gaza": "gaza", "boat2": "boat", "gavel": "probe", "tariff": "tariff", "cricket2": "cricket", "mine2": "mine", "oil2": "oil"}
+CERTS = {4: "REPORTED", 5: "REPORTED", 6: "REPORTED", 7: "OFFICIAL", 8: "REPORTED", 9: "REPORTED", 10: "REPORTED", 11: "CONFIRMED", 12: "REPORTED", 13: "OFFICIAL"}
+for idx, st in enumerate(S.MIDS):
+    r, c = divmod(idx, 5)
+    x = 14 + c * (MW2 + 12)
+    y = MZ + r * (MH2 + 8)
+    kind = st["art"]
+    if kind in ILLUS_KINDS:
+        illus(ILLUS_KINDS[kind], x, y, MW2, 48)
+        banner(x, y, st["kicker"], (14, 20, 36), 10)
+    else:
+        art(kind, x, y, MW2, 48)
+    loc_line(x, y + 53, MW2, st["n"], st["loc"], CERTS[st["n"]])
+    yy = para(x, y + 70, st["head"], F(SERIF_B, 13.5), MW2, INK, leading=1.1, max_lines=3)
+    para(x, yy + 2, st["body"], F(SANS, 9), MW2, (52, 50, 46), leading=1.18, max_lines=3)
+    if r == 0:
+        rule(y + MH2 + 4, x0=14, x1=1010, wdt=1, col=(196, 188, 168))
+rule(MZ + 2 * MH2 + 12, wdt=2)
 
-# ---------------------------------------------------------------- mid grid
-MY = 398
-MW = (1024 - 28 - 4 * 8) / 5
-MH = 148
-for j, st in enumerate(S.MIDS):
-    r, c = divmod(j, 5)
-    x = 14 + c * (MW + 8)
-    y = MY + r * (MH + 8)
-    if c:
-        line([(x - 4, y), (x - 4, y + MH)], fill=LGREY, width=1)
-    art(st["art"], x, y, MW, 44)
-    chip(x + 5, y + 5, st["kicker"], NAVY, F(SANS_B, 8.5), pad=4)
-    num_badge(x, y + 49, st["n"], RED, r=8)
-    text(x + 20, y + 50, st["loc"], F(SANS_B, 8.5), RED)
-    yy = para(x, y + 64, st["head"], F(SERIF_B, 13.5), MW, leading=1.5, max_lines=3)
-    para(x, yy + 1, st["body"], F(SANS, 9.5), MW, (52, 50, 46), leading=1.5, max_lines=3)
-line([(14, MY + 2 * MH + 8), (1010, MY + 2 * MH + 8)], fill=INK, width=2)
-
-# ---------------------------------------------------------------- bottom
-BY = MY + 2 * MH + 16
-text(14, BY, "WHERE IT HAPPENED", F(SANS_B, 11), RED)
-text(370, BY, S.ALSO_TITLE, F(SANS_B, 11), RED)
-line([(14, BY + 16), (1010, BY + 16)], fill=GREY, width=1)
-
-# dotted world map (very simplified continents as dot grids)
-MAP_X, MAP_Y, MAP_W, MAP_H = 14, BY + 22, 342, 168
-rect([MAP_X, MAP_Y, MAP_X + MAP_W, MAP_Y + MAP_H], fill=(238, 232, 214))
-# continent blobs: (cx, cy, rx, ry) in map fractions
-blobs = [(0.16, 0.30, 0.13, 0.16), (0.27, 0.68, 0.07, 0.15), (0.52, 0.26, 0.10, 0.11),
-         (0.55, 0.52, 0.09, 0.16), (0.68, 0.30, 0.17, 0.15), (0.80, 0.62, 0.06, 0.10),
-         (0.90, 0.80, 0.055, 0.07), (0.44, 0.14, 0.05, 0.06)]
-step = 7
-for gx in range(int(MAP_X) + 4, int(MAP_X + MAP_W) - 2, step):
-    for gy in range(int(MAP_Y) + 4, int(MAP_Y + MAP_H) - 2, step):
+# ---- bottom: map + also
+BZ = MZ + 2 * MH2 + 22
+text(14, BZ, "WHERE IT HAPPENED", F(SANS_B, 11.5), RED)
+text(370, BZ, S.ALSO_TITLE, F(SANS_B, 11.5), RED)
+rule(BZ + 17)
+MAP_X, MAP_Y, MAP_W, MAP_H = 14, BZ + 23, 342, 126
+rect([MAP_X, MAP_Y, MAP_X + MAP_W, MAP_Y + MAP_H], fill=(232, 238, 244))
+blobs = [(0.14, 0.30, 0.115, 0.15), (0.13, 0.15, 0.09, 0.07), (0.26, 0.68, 0.06, 0.14),
+         (0.485, 0.22, 0.07, 0.08), (0.52, 0.52, 0.085, 0.17), (0.63, 0.30, 0.10, 0.11),
+         (0.77, 0.32, 0.11, 0.13), (0.79, 0.56, 0.05, 0.08), (0.87, 0.79, 0.06, 0.07)]
+step = 6
+for gx in range(int(MAP_X) + 3, int(MAP_X + MAP_W) - 2, step):
+    for gy in range(int(MAP_Y) + 3, int(MAP_Y + MAP_H) - 2, step):
         fx, fy = (gx - MAP_X) / MAP_W, (gy - MAP_Y) / MAP_H
-        inside = any(((fx - bx) / brx) ** 2 + ((fy - by) / bry) ** 2 < 1 for bx, by, brx, bry in blobs)
-        if inside:
-            d.ellipse([X(gx), X(gy), X(gx + 2.2), X(gy + 2.2)], fill=(150, 142, 122))
+        if any(((fx - bx) / brx) ** 2 + ((fy - by) / bry) ** 2 < 1 for bx, by, brx, bry in blobs):
+            d.ellipse([X(gx), X(gy), X(gx + 2.4), X(gy + 2.4)], fill=(120, 140, 170))
 for n, fx, fy in S.PINS:
     px, py = MAP_X + fx * MAP_W, MAP_Y + fy * MAP_H
     d.ellipse([X(px - 8), X(py - 8), X(px + 8), X(py + 8)], fill=RED, outline=(255, 255, 255), width=1)
     text(px, py + 0.5, str(n), F(SANS_B, 8.5), (255, 255, 255), anchor="mm")
-text(MAP_X, MAP_Y + MAP_H + 4, "pins: stories 1–13  •  map is a schematic, not to scale", F(SANS, 8.5), GREY)
-
-# ALSO list, two columns
+text(MAP_X, MAP_Y + MAP_H + 5, "pins: stories 1–13  •  map is a schematic, not to scale", F(SANS, 8.5), GREY)
 AX, AW = 370, 640
 colw = (AW - 18) / 2
 items = S.ALSO
 half = (len(items) + 1) // 2
 for ci, chunk in enumerate([items[:half], items[half:]]):
     x = AX + ci * (colw + 18)
-    y = BY + 22
+    y = BZ + 23
     for st in chunk:
         num_badge(x, y, st["n"], NAVY, r=7.5)
         s = f"{st['where']}: {st['text']}"
-        yy = para(x + 19, y - 1, s, F(SANS, 9.5), colw - 19, INK, leading=1.1, max_lines=2)
-        y = max(yy, y + 14) + 3.5
+        yy = para(x + 19, y - 1, s, F(SANS, 9.3), colw - 19, INK, leading=1.08, max_lines=2)
+        y = max(yy, y + 12) + 2.2
 
-# ---------------------------------------------------------------- footer
-FY = 966
-rect([14, FY, 1010, FY + 30], outline=RED, width=1.5)
-text(22, FY + 5, "DATE CHECK", F(SANS_B, 10.5), RED)
-para(108, FY + 4.5, S.DATE_CHECK, F(SANS, 9.3), 890, (52, 50, 46), leading=1.2, max_lines=2)
-text(14, FY + 36, S.SOURCES, F(SANS, 8.5), GREY)
-text(1010, FY + 36, "Drawings and map: original  •  THE WORLD IN ONE DAY", F(SANS_B, 8.5), GREY, anchor="ra")
+# ---- date check + legend
+FY = 978
+rect([14, FY, 1010, FY + 27], outline=RED, width=1.5)
+text(22, FY + 4, "DATE CHECK", F(SANS_B, 10.5), RED)
+para(108, FY + 3.5, S.DATE_CHECK, F(SANS, 9), 890, (52, 50, 46), leading=1.15, max_lines=2)
+text(14, FY + 33, "REPORTED = carried by wires or officials  •  OFFICIAL = an authority's own word  •  CLAIM = one side says  •  " + S.SOURCES, F(SANS, 8.3), GREY)
 
 img = img.resize((1024, 1024), Image.LANCZOS)
-img.save("entry.png", optimize=True)
+img.save("entry.png")
 print("saved entry.png")
