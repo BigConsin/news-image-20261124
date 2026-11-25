@@ -23,8 +23,8 @@ TEAL = (14, 110, 120)
 PURPLE = (96, 52, 140)
 ORANGE = (214, 106, 20)
 
-SERIF_B = "/usr/share/fonts/truetype/noto/NotoSerif-Bold.ttf"
-SERIF = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf"
+SERIF_B = "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf"
+SERIF = "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf"
 SERIF_I = "/usr/share/fonts/truetype/liberation/LiberationSerif-Italic.ttf"
 SANS_B = "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
 SANS = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
