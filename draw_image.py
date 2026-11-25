@@ -372,7 +372,7 @@ for i, (big, small, col) in enumerate(S.DATA):
     x = 14 + i * 168
     if i:
         line([(x - 10, NY), (x - 10, NY + 34)], fill=(170, 162, 146), width=1)
-    text(x, NY, big, F(SERIF_B, 21), col)
+    text(x, NY - 1, big, F(SERIF_B, 22.5), col)
     para(x, NY + 26, small, F(SANS, 8), 158, GREY, leading=1.1, max_lines=1)
 rule(NY + 40, wdt=1)
 # ---- region colour bar
@@ -386,7 +386,7 @@ widths = [wd * scale for wd in widths]
 rx = 14
 for (nm, c, col), wd in zip(regions, widths):
     rect([rx, RY, rx + wd - 2, RY + 16], fill=col)
-    text(rx + wd / 2 - 1, RY + 3, f"{nm} {c}", F(SANS_B, 8.5), WHITE, anchor="ma")
+    text(rx + wd / 2 - 1, RY + 2.5, f"{nm} {c}", F(SANS_B, 9), WHITE, anchor="ma")
     rx += wd
 # ---- black timeline bar
 TY = RY + 20
@@ -415,8 +415,8 @@ for i, st in enumerate([L1, L2, L3]):
     else:
         illus(key, x, LZ, LW3, 100)
     if ban:
-        banner(x, LZ, ban, RED, 12.5)
-    chip_r(x + LW3, LZ + 79, chip)
+        banner(x, LZ, ban, RED, 15)
+    chip_r(x + LW3, LZ + 76, chip, size=12)
     loc_line(x, LZ + 106, LW3, st["n"], st["loc"], st["cert"])
     yy = para(x, LZ + 124, st["head"], F(SERIF_B, 20), LW3, INK, leading=1.1, max_lines=3)
     para(x, yy + 3, st["body"], F(SANS, 9.5), LW3, (52, 50, 46), leading=1.2, max_lines=3)
@@ -435,9 +435,12 @@ for idx, st in enumerate(S.MIDS):
     kind = st["art"]
     if kind in ILLUS_KINDS:
         illus(ILLUS_KINDS[kind], x, y, MW2, 48)
-        banner(x, y, st["kicker"], (14, 20, 36), 10)
+        banner(x, y, st["kicker"], (14, 20, 36), 11.5)
     else:
         art(kind, x, y, MW2, 48)
+    MID_CHIPS = {5: "7 DEAD", 7: "4TH SINCE 2025", 9: "16 PARTNERS", 11: "188-2", 13: "4 PROVINCES"}
+    if st["n"] in MID_CHIPS:
+        chip_r(x + MW2, y + 26, MID_CHIPS[st["n"]], size=9.5)
     loc_line(x, y + 53, MW2, st["n"], st["loc"], CERTS[st["n"]])
     yy = para(x, y + 70, st["head"], F(SERIF_B, 13.5), MW2, INK, leading=1.1, max_lines=3)
     para(x, yy + 2, st["body"], F(SANS, 9), MW2, (52, 50, 46), leading=1.18, max_lines=3)
@@ -452,20 +455,51 @@ text(370, BZ, S.ALSO_TITLE, F(SANS_B, 11.5), RED)
 rule(BZ + 17)
 MAP_X, MAP_Y, MAP_W, MAP_H = 14, BZ + 23, 342, 126
 rect([MAP_X, MAP_Y, MAP_X + MAP_W, MAP_Y + MAP_H], fill=(232, 238, 244))
-blobs = [(0.14, 0.30, 0.115, 0.15), (0.13, 0.15, 0.09, 0.07), (0.26, 0.68, 0.06, 0.14),
-         (0.485, 0.22, 0.07, 0.08), (0.52, 0.52, 0.085, 0.17), (0.63, 0.30, 0.10, 0.11),
-         (0.77, 0.32, 0.11, 0.13), (0.79, 0.56, 0.05, 0.08), (0.87, 0.79, 0.06, 0.07)]
+# real world map: land mask rasterised from country polygons (Natural Earth via world.geo.json)
+import json as _json
+from PIL import ImageDraw as _IDraw
+_mask = _Img.new("L", (int(MAP_W * SS), int(MAP_H * SS)), 0)
+_md = _IDraw.Draw(_mask)
+def _proj(lon, lat):
+    return ((lon + 180) / 360 * MAP_W * SS, (85 - lat) / 145 * MAP_H * SS)
+try:
+    _geo = _json.load(open("assets/world.geo.json"))
+    for _feat in _geo["features"]:
+        _g = _feat["geometry"]
+        if not _g:
+            continue
+        _polys = _g["coordinates"] if _g["type"] == "MultiPolygon" else [_g["coordinates"]]
+        for _poly in _polys:
+            for _ring in _poly:
+                _pts = [_proj(lon, lat) for lon, lat in _ring]
+                if len(_pts) > 2:
+                    _md.polygon(_pts, fill=255)
+except Exception:
+    pass
+_mp = _mask.load()
 step = 6
 for gx in range(int(MAP_X) + 3, int(MAP_X + MAP_W) - 2, step):
     for gy in range(int(MAP_Y) + 3, int(MAP_Y + MAP_H) - 2, step):
-        fx, fy = (gx - MAP_X) / MAP_W, (gy - MAP_Y) / MAP_H
-        if any(((fx - bx) / brx) ** 2 + ((fy - by) / bry) ** 2 < 1 for bx, by, brx, bry in blobs):
+        sx, sy = int((gx - MAP_X) * SS), int((gy - MAP_Y) * SS)
+        if _mp[sx, sy]:
             d.ellipse([X(gx), X(gy), X(gx + 2.4), X(gy + 2.4)], fill=(120, 140, 170))
-for n, fx, fy in S.PINS:
+PINS_GEO = [(1, -74.0, 40.7), (2, 2.35, 48.9), (3, 35.2, 47.8), (4, 37.6, 55.8), (5, 34.3, 31.4),
+            (6, -17.4, 14.7), (7, 116.4, 39.9), (8, -77.0, 38.9), (9, -77.0, 38.9), (10, -66.9, 10.5),
+            (11, 151.2, -33.9), (12, 15.3, -4.3), (13, 44.4, 33.3)]
+for n, lon, lat in PINS_GEO:
+    fx, fy = (lon + 180) / 360, (85 - lat) / 145
+    if n == 9:
+        fx += 0.012; fy += 0.012
+    if n == 1:
+        fx += 0.014; fy -= 0.016
+    if n == 3:
+        fx -= 0.010; fy += 0.012
+    if n == 5:
+        fx -= 0.012; fy += 0.008
     px, py = MAP_X + fx * MAP_W, MAP_Y + fy * MAP_H
     d.ellipse([X(px - 8), X(py - 8), X(px + 8), X(py + 8)], fill=RED, outline=(255, 255, 255), width=1)
     text(px, py + 0.5, str(n), F(SANS_B, 8.5), (255, 255, 255), anchor="mm")
-text(MAP_X, MAP_Y + MAP_H + 5, "pins: stories 1–13  •  map is a schematic, not to scale", F(SANS, 8.5), GREY)
+text(MAP_X, MAP_Y + MAP_H + 5, "pins: stories 1–13, at their real locations  •  dots: land", F(SANS, 8.5), GREY)
 AX, AW = 370, 640
 colw = (AW - 18) / 2
 items = S.ALSO
